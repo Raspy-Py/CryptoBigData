@@ -1,5 +1,6 @@
 import websocket
 import json
+import os
 from confluent_kafka import Producer
 
 kafka_producer = Producer({'bootstrap.servers': 'kafka:9092'})
@@ -12,11 +13,15 @@ def on_message(ws, message):
 def on_error(ws, error):
     print(error)
 
-def on_close(ws):
-    print("### closed ###")
+def on_close(ws, close_status_code, close_msg):
+    print("### closed ###", close_status_code, close_msg)
 
 def on_open(ws):
-    ws.send(json.dumps({"op": "subscribe", "args": ["trade:XBTUSD"]}))
+    with open('config.json') as config_file:
+        config = json.load(config_file)
+        currencies = config.get('currencies', [])
+        for currency in currencies:
+            ws.send(json.dumps({"op": "subscribe", "args": [f"trade:{currency}"]}))
 
 if __name__ == "__main__":
     websocket.enableTrace(True)
