@@ -12,8 +12,8 @@ def run_batch_job():
     db_name = "crypto_db"
     collection_name = "aggregated_transactions"
 
-    end_time = datetime.utcnow().replace(minute=0, second=0, microsecond=0) - timedelta(hours=1)
-    start_time = end_time - timedelta(hours=6)
+    end_time = datetime.utcnow().replace(minute=0, second=0, microsecond=0)
+    start_time = end_time - timedelta(hours=1)
 
     df = spark.read \
         .format("mongo") \
@@ -39,7 +39,7 @@ if __name__ == "__main__":
     while True:
         current_time = datetime.utcnow()
         next_hour = (current_time.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1))
-        sleep_time = (next_hour - current_time).total_seconds()
+        sleep_time = (next_hour - current_time).total_seconds() + 1 # just to be sure
         print(f"Sleeping for {sleep_time} seconds until the next hour.")
         time.sleep(sleep_time)
         run_batch_job()

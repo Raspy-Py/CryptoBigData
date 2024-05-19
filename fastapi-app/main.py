@@ -14,7 +14,7 @@ def read_root():
 
 @app.get("/reports/transactions/hourly")
 def get_hourly_transactions():
-    end_time = datetime.utcnow().replace(minute=0, second=0, microsecond=0)
+    end_time = datetime.utcnow().replace(minute=0, second=0, microsecond=0) # Round down to the hour to exclude partial hours
     start_time = end_time - timedelta(hours=6)
     
     # Convert to strings in the format 'YYYY-MM-DDTHH'
