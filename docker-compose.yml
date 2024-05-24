@@ -36,10 +36,24 @@ services:
     networks:
       - crypto-net
 
-  spark-streaming:
+  spark-stream-job:
     build:
-      context: ./spark-streaming
-    container_name: spark-streaming
+      context: ./spark
+    container_name: spark-stream-job
+    environment:
+      SPARK_JOB: stream_processing
+      SPARK_MONGO_PACKAGE: "org.mongodb.spark:mongo-spark-connector_2.12:3.0.1"
+      SPARK_KAFKA_PACKAGE: "org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.0"
+    networks:
+      - crypto-net
+
+  spark-batch-job:
+    build:
+      context: ./spark
+    container_name: spark-batch-job
+    environment:
+      SPARK_JOB: batch_processing
+      SPARK_MONGO_PACKAGE: "org.mongodb.spark:mongo-spark-connector_2.12:3.0.1"
     networks:
       - crypto-net
 
@@ -54,4 +68,4 @@ services:
 
 networks:
   crypto-net:
-    external: true
+    name: crypto-net
