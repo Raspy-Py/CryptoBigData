@@ -31,7 +31,7 @@ docker-compose up --build -d
 `3`
 **Start batch processing job**
 ```bash
-docker-compose run spark-streaming spark-submit --packages org.mongodb.spark:mongo-spark-connector_2.12:3.0.1 /app/batch_processing.py
+docker-compose run -d spark-streaming spark-submit --packages org.mongodb.spark:mongo-spark-connector_2.12:3.0.1 /app/batch_processing.py
 ```
 
 ## Debug
