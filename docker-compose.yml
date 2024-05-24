@@ -54,4 +54,4 @@ services:
 
 networks:
   crypto-net:
-    external: true
+    name: crypto-net
