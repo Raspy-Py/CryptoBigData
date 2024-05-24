@@ -1,8 +1,7 @@
 # TODO
-1. Remove postgres
-2. Make batch processing job start automatically
-3. Implement all required batch precomputations
-4. Implement all endpoints in fastapi-app
+1. Make batch processing job start automatically
+1. Implement all required batch precomputations
+1. Implement all endpoints in fastapi-app
 
 # Docs
 
