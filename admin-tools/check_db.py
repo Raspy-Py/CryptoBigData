@@ -19,39 +19,3 @@ while True:
     
     for doc in db[collections[choice-1]].find()[:10]:
         print(doc)
-    print("")
-
-exit()
-
-db = client.crypto_db
-
-# Verify connection
-try:
-    client.admin.command('ping')
-    print("Connected to MongoDB")
-except Exception as e:
-    print(f"Failed to connect to MongoDB: {e}")
-
-print("Contents of transactions_per_hour:")
-for doc in db.transactions_per_hour.find():
-    print(doc)
-
-print("\nContents of aggregated_transactions:")
-for doc in db.aggregated_transactions.find():
-    print(doc)
-
-print("\nContents of raw transactions:")
-for doc in db.raw_transactions.find():
-    #print(doc)
-    pass
-
-
-# List found databases
-print("\nDatabases:")
-for db_name in client.list_database_names():
-    print(db_name)
-
-# List found collections in the crypto_db database
-print("\nCollections in 'crypto_db':")
-for collection_name in db.list_collection_names():
-    print(collection_name)

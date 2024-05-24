@@ -1,9 +1,18 @@
 import websocket
 import json
+import time
 import os
-from confluent_kafka import Producer
+from confluent_kafka import Producer, KafkaError
 
-kafka_producer = Producer({'bootstrap.servers': 'kafka:9092'})
+kafka_config = {
+    'bootstrap.servers': 'kafka:9092'
+}
+
+kafka_producer = None
+max_retries = 10
+retry_interval = 5  # in seconds
+
+
 
 def on_message(ws, message):
     data = json.loads(message)
@@ -24,6 +33,17 @@ def on_open(ws):
             ws.send(json.dumps({"op": "subscribe", "args": [f"trade:{currency}"]}))
 
 if __name__ == "__main__":
+    for attempt in range(max_retries):
+        try:
+            kafka_producer = Producer(kafka_config)
+            break
+        except KafkaError as e:
+            print(f"Attempt {attempt + 1} of {max_retries}: Kafka not available, retrying in {retry_interval} seconds...")
+            time.sleep(retry_interval)
+    else:
+        print("Failed to connect to Kafka after multiple attempts, exiting.")
+        exit(1)
+
     websocket.enableTrace(True)
     ws = websocket.WebSocketApp("wss://www.bitmex.com/realtime",
                                 on_message=on_message,

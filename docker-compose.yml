@@ -2,6 +2,7 @@ version: '3.8'
 services:
   zookeeper:
     image: wurstmeister/zookeeper
+    container_name: zookeeper
     ports:
       - "2181:2181"
     networks:
@@ -9,6 +10,7 @@ services:
 
   kafka:
     image: wurstmeister/kafka
+    container_name: kafka
     ports:
       - "9092:9092"
     environment:
@@ -20,37 +22,31 @@ services:
 
   mongodb:
     image: mongo
+    container_name: mongodb
     ports:
       - "27017:27017"
     networks:
       - crypto-net
 
-  postgres:
-    image: postgres
-    environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: crypto_db
-    ports:
-      - "5432:5432"
-    networks:
-      - crypto-net
 
   websocket-client:
     build:
       context: ./websocket-client
+    container_name: websocket-client
     networks:
       - crypto-net
 
   spark-streaming:
     build:
       context: ./spark-streaming
+    container_name: spark-streaming
     networks:
       - crypto-net
 
   fastapi-app:
     build:
       context: ./fastapi-app
+    container_name: fastapi-app
     ports:
       - "8000:8000"
     networks:
