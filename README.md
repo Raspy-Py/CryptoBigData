@@ -22,7 +22,7 @@ Configure currencies you want to track in [`websocket-client/config.json`](./web
 ```bash
 docker-compose up --build -d
 ```
-1. Run `cassandra-scripts/entry-point.sh` to create keyspace and tables. It will wait for cassandra to initialize.
+1. Run `sh run-compose-and-cassandra.sh` to run compose and to create keyspace and tables. It will wait for cassandra to initialize.
 
 
 
