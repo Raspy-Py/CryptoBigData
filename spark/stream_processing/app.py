@@ -15,11 +15,11 @@ schema = StructType([
     StructField("side", StringType(), True),
     StructField("size", IntegerType(), True),
     StructField("price", FloatType(), True),
-    StructField("tickdirection", StringType(), True),
-    StructField("grossvalue", LongType(), True),
-    StructField("homenotional", FloatType(), True),
-    StructField("foreignnotional", FloatType(), True),
-    StructField("trdtype", StringType(), True)
+    StructField("tickDirection", StringType(), True),
+    StructField("grossValue", LongType(), True),
+    StructField("homeNotional", FloatType(), True),
+    StructField("foreignNotional", FloatType(), True),
+    StructField("trdType", StringType(), True)
 ])
 
 kafka_df = spark \
@@ -31,7 +31,18 @@ kafka_df = spark \
 
 value_df = kafka_df.selectExpr("CAST(value AS STRING) as json_string") \
     .select(from_json(col("json_string"), schema).alias("data")) \
-    .select("data.*")
+    .select(
+    col("data.timestamp").alias("timestamp"),
+    col("data.symbol").alias("symbol"),
+    col("data.side").alias("side"),
+    col("data.size").alias("size"),
+    col("data.price").alias("price"),
+    col("data.tickDirection").alias("tickdirection"),
+    col("data.grossValue").alias("grossvalue"),
+    col("data.homeNotional").alias("homenotional"),
+    col("data.foreignNotional").alias("foreignnotional"),
+    col("data.trdType").alias("trdtype")
+)
 
 value_df.writeStream \
     .format("org.apache.spark.sql.cassandra") \
