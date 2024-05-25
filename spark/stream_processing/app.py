@@ -1,6 +1,6 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import from_json, col, explode
-from pyspark.sql.types import StructType, StructField, StringType, FloatType, IntegerType, ArrayType
+from pyspark.sql.types import StructType, StructField, StringType, IntegerType, FloatType, LongType
 
 # Initialize Spark session with Cassandra connection
 spark = SparkSession.builder \
@@ -15,12 +15,11 @@ schema = StructType([
     StructField("side", StringType(), True),
     StructField("size", IntegerType(), True),
     StructField("price", FloatType(), True),
-    StructField("tickDirection", StringType(), True),
-    StructField("trdMatchID", StringType(), True),
-    StructField("grossValue", IntegerType(), True),
-    StructField("homeNotional", FloatType(), True),
-    StructField("foreignNotional", FloatType(), True),
-    StructField("trdType", StringType(), True)
+    #StructField("tickDirection", StringType(), True),
+    # StructField("grossValue", LongType(), True),
+    # StructField("homeNotional", FloatType(), True),
+    # StructField("foreignNotional", FloatType(), True),
+    # StructField("trdType", StringType(), True)
 ])
 
 kafka_df = spark \
@@ -30,20 +29,13 @@ kafka_df = spark \
     .option("subscribe", "crypto_data") \
     .load()
 
-value_df = kafka_df.selectExpr("CAST(value AS STRING) as json") \
-    .select(from_json(col("json"), schema).alias("data")) \
+value_df = kafka_df.selectExpr("CAST(value AS STRING) as json_string") \
+    .select(from_json(col("json_string"), schema).alias("data")) \
     .select("data.*")
 
-def write_to_cassandra(df, epoch_id):
-    df.write \
-      .format("org.apache.spark.sql.cassandra") \
-      .mode("append") \
-      .options(table="raw_transactions", keyspace="crypto_db") \
-      .save()
-
-query = value_df.writeStream \
-    .foreachBatch(write_to_cassandra) \
-    .outputMode("append") \
-    .start()
-
-query.awaitTermination()
+value_df.writeStream \
+    .format("org.apache.spark.sql.cassandra") \
+    .options(table="raw_transactions", keyspace="crypto_space") \
+    .option("checkpointLocation", "/path/to/checkpoint/dir") \
+    .start() \
+    .awaitTermination()

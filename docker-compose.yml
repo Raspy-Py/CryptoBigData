@@ -19,6 +19,39 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
     networks:
       - crypto-net
+  
+  spark-master:
+    image: bitnami/spark:3
+    container_name: spark-master
+    environment:
+      - SPARK_MODE=master
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    ports:
+      - "8080:8080"
+    networks:
+      - crypto-net
+    depends_on:
+      - kafka
+
+  spark-worker:
+    image: bitnami/spark:3
+    container_name: spark-worker
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_WORKER_CORES=1
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    networks:
+      - crypto-net
+    depends_on:
+      - spark-master
 
   mongodb:
     image: mongo
@@ -53,7 +86,7 @@ services:
     container_name: spark-stream-job
     environment:
       SPARK_JOB: stream_processing
-      SPARK_CASSANDRA_PACKAGE: "com.datastax.spark:spark-cassandra-connector_2.12:3.1.0"
+      SPARK_CASSANDRA_PACKAGE: "com.datastax.spark:spark-cassandra-connector_2.12:3.2.0"
       SPARK_KAFKA_PACKAGE: "org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.0"
     networks:
       - crypto-net
