@@ -15,11 +15,11 @@ schema = StructType([
     StructField("side", StringType(), True),
     StructField("size", IntegerType(), True),
     StructField("price", FloatType(), True),
-    #StructField("tickDirection", StringType(), True),
-    # StructField("grossValue", LongType(), True),
-    # StructField("homeNotional", FloatType(), True),
-    # StructField("foreignNotional", FloatType(), True),
-    # StructField("trdType", StringType(), True)
+    StructField("tickdirection", StringType(), True),
+    StructField("grossvalue", LongType(), True),
+    StructField("homenotional", FloatType(), True),
+    StructField("foreignnotional", FloatType(), True),
+    StructField("trdtype", StringType(), True)
 ])
 
 kafka_df = spark \

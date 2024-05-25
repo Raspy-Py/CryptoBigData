@@ -9,10 +9,10 @@ CREATE TABLE IF NOT EXISTS raw_transactions (
     side TEXT,
     size INT,
     price FLOAT,
-    tickDirection TEXT,
-    grossValue INT,
-    homeNotional FLOAT,
-    foreignNotional FLOAT,
-    trdType TEXT,
+    tickdirection TEXT,
+    grossvalue INT,
+    homenotional FLOAT,
+    foreignnotional FLOAT,
+    trdtype TEXT,
     PRIMARY KEY (timestamp)
 );
