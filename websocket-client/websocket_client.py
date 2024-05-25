@@ -14,12 +14,13 @@ retry_interval = 5  # in seconds
 
 
 def on_message(ws, message):
-    data = json.loads(message)
+    serialisied_message = json.loads(message)
     # If data contains 'data' key, send it to Kafka
-    if 'data' in data:
-        data_data = data['data']
-        kafka_producer.produce('crypto_data', value=json.dumps(data_data[0]))
-        kafka_producer.flush()
+    if 'data' in serialisied_message:
+        data = serialisied_message['data']
+        for data_entry in data:  
+            kafka_producer.produce('crypto_data', value=json.dumps(data_entry))
+            kafka_producer.flush()
     
 
 def on_error(ws, error):
