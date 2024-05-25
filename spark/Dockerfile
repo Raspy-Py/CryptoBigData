@@ -1,7 +1,11 @@
-FROM bitnami/spark:latest
+FROM bitnami/spark:3
 
-COPY ./${SPARK_JOB}/* /app/
+USER root
 
-ENV SPARK_VERSION=3.2.0
+COPY stream_processing/submit.sh /opt/bitnami/scripts/spark/entrypoint.sh
 
-CMD [ "/bin/bash", "/app/submit.sh"]
+COPY stream_processing/app.py /opt/app/spark_streaming.py
+
+RUN chmod +x /opt/bitnami/scripts/spark/entrypoint.sh
+
+ENTRYPOINT ["/opt/bitnami/scripts/spark/entrypoint.sh"]
