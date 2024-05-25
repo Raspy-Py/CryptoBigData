@@ -5,11 +5,11 @@ from pyspark.sql.types import StructType, StructField, StringType, FloatType, In
 # Initialize Spark session with Cassandra connection
 spark = SparkSession.builder \
     .appName("CryptoStreamProcessor") \
-    .config("spark.cassandra.connection.host", "localhost") \
+    .config("spark.cassandra.connection.host", "cassandradb") \
     .config("spark.cassandra.connection.port", "9042") \
     .getOrCreate()
 
-data_schema = StructType([
+schema = StructType([
     StructField("timestamp", StringType(), True),
     StructField("symbol", StringType(), True),
     StructField("side", StringType(), True),
@@ -23,12 +23,6 @@ data_schema = StructType([
     StructField("trdType", StringType(), True)
 ])
 
-schema = StructType([
-    StructField("table", StringType(), True),
-    StructField("action", StringType(), True),
-    StructField("data", ArrayType(data_schema), True)
-])
-
 kafka_df = spark \
     .readStream \
     .format("kafka") \
@@ -38,7 +32,6 @@ kafka_df = spark \
 
 value_df = kafka_df.selectExpr("CAST(value AS STRING) as json") \
     .select(from_json(col("json"), schema).alias("data")) \
-    .select(explode(col("data.data")).alias("data")) \
     .select("data.*")
 
 def write_to_cassandra(df, epoch_id):
