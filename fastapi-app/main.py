@@ -12,6 +12,8 @@ mongo_db = mongo_client.crypto_db
 def read_root():
     return {"message": "Hello, World!"}
 
+# --- precomputed reports ---
+
 @app.get("/reports/transactions/hourly")
 def get_hourly_transactions():
     end_time = datetime.utcnow().replace(minute=0, second=0, microsecond=0) # Round down to the hour to exclude partial hours
@@ -34,6 +36,9 @@ def get_hourly_transactions():
         })
     
     return result
+
+# --- ad-hoc queries ---
+#@app.get('/ad-hoc/transactions')
 
 if __name__ == "__main__":
     import uvicorn

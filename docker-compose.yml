@@ -27,7 +27,18 @@ services:
       - "27017:27017"
     networks:
       - crypto-net
-
+  
+  cassandradb:
+    image: cassandra:latest
+    container_name: cassandradb
+    ports:
+      - "9042:9042"
+    networks:
+      - crypto-net
+    volumes:
+      - ./cassandra-scripts:/scripts
+    environment:
+      - CASSANDRA_START_RPC=true
 
   websocket-client:
     build:
@@ -42,20 +53,22 @@ services:
     container_name: spark-stream-job
     environment:
       SPARK_JOB: stream_processing
-      SPARK_MONGO_PACKAGE: "org.mongodb.spark:mongo-spark-connector_2.12:3.0.1"
+      SPARK_CASSANDRA_PACKAGE: "com.datastax.spark:spark-cassandra-connector_2.12:3.1.0"
       SPARK_KAFKA_PACKAGE: "org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.0"
     networks:
       - crypto-net
+    depends_on:
+      - cassandradb
 
-  spark-batch-job:
-    build:
-      context: ./spark
-    container_name: spark-batch-job
-    environment:
-      SPARK_JOB: batch_processing
-      SPARK_MONGO_PACKAGE: "org.mongodb.spark:mongo-spark-connector_2.12:3.0.1"
-    networks:
-      - crypto-net
+  # spark-batch-job:
+  #   build:
+  #     context: ./spark
+  #   container_name: spark-batch-job
+  #   environment:
+  #     SPARK_JOB: batch_processing
+  #     SPARK_MONGO_PACKAGE: "org.mongodb.spark:mongo-spark-connector_2.12:3.0.1"
+  #   networks:
+  #     - crypto-net
 
   fastapi-app:
     build:

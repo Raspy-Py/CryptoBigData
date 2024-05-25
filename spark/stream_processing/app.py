@@ -2,8 +2,11 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import from_json, col, explode
 from pyspark.sql.types import StructType, StructField, StringType, FloatType, IntegerType, ArrayType
 
+# Initialize Spark session with Cassandra connection
 spark = SparkSession.builder \
     .appName("CryptoStreamProcessor") \
+    .config("spark.cassandra.connection.host", "localhost") \
+    .config("spark.cassandra.connection.port", "9042") \
     .getOrCreate()
 
 data_schema = StructType([
@@ -38,15 +41,15 @@ value_df = kafka_df.selectExpr("CAST(value AS STRING) as json") \
     .select(explode(col("data.data")).alias("data")) \
     .select("data.*")
 
-def write_to_mongo(df, epoch_id):
+def write_to_cassandra(df, epoch_id):
     df.write \
-      .format("mongo") \
+      .format("org.apache.spark.sql.cassandra") \
       .mode("append") \
-      .option("uri", "mongodb://mongodb:27017/crypto_db.raw_transactions") \
+      .options(table="raw_transactions", keyspace="crypto_db") \
       .save()
 
 query = value_df.writeStream \
-    .foreachBatch(write_to_mongo) \
+    .foreachBatch(write_to_cassandra) \
     .outputMode("append") \
     .start()
 
