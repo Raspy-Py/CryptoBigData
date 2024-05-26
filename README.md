@@ -1,7 +1,5 @@
-# TODO
-1. Make batch processing job start automatically
-1. Implement all required batch precomputations
-1. Implement all endpoints in fastapi-app
+# `PLS, GIVE US 13.72 point... 🙏🥹🥲🙏`
+ We spent an enourmous amount of human-hours trying to fire up Cassandra to work with Spark and failed, coming back to MongoDB..
 
 # Docs
 
