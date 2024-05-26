@@ -38,7 +38,7 @@ services:
 
   spark-stream-job:
     build:
-      context: ./spark
+      context: ./spark/stream_processing
     container_name: spark-stream-job
     environment:
       SPARK_JOB: stream_processing
@@ -49,7 +49,7 @@ services:
 
   spark-batch-job:
     build:
-      context: ./spark
+      context: ./spark/batch_processing
     container_name: spark-batch-job
     environment:
       SPARK_JOB: batch_processing

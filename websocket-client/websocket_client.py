@@ -12,8 +12,6 @@ kafka_producer = None
 max_retries = 10
 retry_interval = 5  # in seconds
 
-
-
 def on_message(ws, message):
     data = json.loads(message)
     kafka_producer.produce('crypto_data', value=json.dumps(data))
