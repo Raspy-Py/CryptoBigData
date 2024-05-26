@@ -60,6 +60,8 @@ The table structure can be observed from diagram
 
 ## Results
 
+<mark>For demostration purposes we set the aggregation interval to 5 minuts, cause we did not have several hours. That's why requests results may appear a bit strange - it's OK :D </mark>
+
 ### Category A endpoints:
 `1` **Return the aggregated statistics containing the number of transactions for each cryptocurrency for each hour in the last 6 hours, excluding the previous hour.**<br>
 <img src="img/category-A-1.png" alt="alt text" width="80%">
