@@ -23,7 +23,7 @@ def run_batch_job():
 
     aggregated_df = df.groupBy(
         col("symbol"),
-        col("timestamp").substr(0, 13).alias("hour")  # Group by symbol and hour
+        col("timestamp").alias("timestamp")  # Group by symbol and full timestamp
     ).agg(
         count("*").alias("num_transactions"),
         _sum("size").alias("total_volume")
@@ -41,5 +41,5 @@ if __name__ == "__main__":
         next_hour = (current_time.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1))
         sleep_time = (next_hour - current_time).total_seconds() + 1 # just to be sure
         print(f"Sleeping for {sleep_time} seconds until the next hour.")
-        time.sleep(5)
+        time.sleep(sleep_time)
         run_batch_job()
