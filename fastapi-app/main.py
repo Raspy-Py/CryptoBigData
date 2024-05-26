@@ -17,7 +17,6 @@ raw_collection = mongo_db[RAW_COLLECTION_NAME]
 def read_root():
     return {"message": "Hello, World!"}
 
-# Helper function to format time
 def format_time(dt):
     return dt.strftime('%Y-%m-%dT%H')
 

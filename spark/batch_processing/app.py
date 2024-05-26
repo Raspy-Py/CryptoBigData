@@ -29,7 +29,7 @@ def run_batch_job(run_interval):
 
     aggregated_df = df.groupBy(
         col("symbol"),
-        col("timestamp").alias("timestamp")  # Group by symbol and full timestamp
+        col("timestamp").substr(0, 13).alias("hour")  # Group by symbol and hour
     ).agg(
         count("*").alias("num_transactions"),
         _sum("size").alias("total_volume")
@@ -44,7 +44,7 @@ def run_batch_job(run_interval):
     print("Batch job completed.")
 
 if __name__ == "__main__":
-    run_interval = 5  # Interval in minutes
+    run_interval = 2  # Interval in minutes
     while True:
         current_time = datetime.now(timezone.utc)
         next_run_time = (current_time.replace(second=0, microsecond=0) + timedelta(minutes=run_interval))
