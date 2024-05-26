@@ -29,7 +29,7 @@ def run_batch_job(run_interval):
 
     aggregated_df = df.groupBy(
         col("symbol"),
-        col("timestamp").substr(0, 13).alias("hour")  # Group by symbol and hour
+        col("timestamp").alias("timestamp")  # Group by symbol and full timestamp
     ).agg(
         count("*").alias("num_transactions"),
         _sum("size").alias("total_volume")
