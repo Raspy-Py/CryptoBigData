@@ -26,13 +26,27 @@ The table structure can be observed from diagram
 
 ## Results
 
-Category B enpoints:
-1. Return the number of trades processed in a specific cryptocurrency in the last N minutes, excluding the last minute. 
-![alt text](img/numberOfTradesPerSymbolInMin.png)
-1. Return the top N cryptocurrencies with the highest trading volume in the last hour.
-![alt text](img/topCrypto.png)
-1. Return the cryptocurrency’s current price for «Buy» and «Sell» sides based on its symbol. 
-![alt text](img/buySell.png)
+### Category A endpoints:
+`1` **Return the aggregated statistics containing the number of transactions for each cryptocurrency for each hour in the last 6 hours, excluding the previous hour.**<br>
+<img src="img/category-A-1.png" alt="alt text" width="80%">
+
+`2` **Return the statistics about the total trading volume for each cryptocurrency for the last 6 hours, excluding the previous hour.**<br>
+<img src="img/category-A-2.png" alt="alt text" width="80%">
+
+`3` **Return aggregated statistics containing the number of trades and their total volume for each hour in the last 12 hours, excluding the current hour.**<br>
+<img src="img/category-A-3.png" alt="alt text" width="80%">
+
+### Category B endpoints:
+`1` **Return the number of trades processed in a specific cryptocurrency in the last N minutes, excluding the last minute.**<br>
+<img src="img/numberOfTradesPerSymbolInMin.png" alt="alt text" width="80%">
+
+`2` **Return the top N cryptocurrencies with the highest trading volume in the last hour.**<br>
+<img src="img/topCrypto.png" alt="alt text" width="80%">
+
+`3` **Return the cryptocurrency’s current price for «Buy» and «Sell» sides based on its symbol.**<br>
+<img src="img/buySell.png" alt="alt text" width="80%">
+
+
 
 ## Configuration
 
