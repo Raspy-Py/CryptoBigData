@@ -3,10 +3,26 @@
 
 # Docs
 
+Here's an improved version of the markdown:
+
 ## Design
-Out system consists of several conteinerised components that we run using single docker-compose.
-It consists of: 1) As a message queue we picked Kafka because we previously worked with it and it was easy to setup and debug. Specifically we create a topic called crypto_data and a Producer that writes data from web socket to it 2) Websocket microservice that writes the contunious stream of data to our Kafka topic 3) As a database we used Mongo 4) Spark that is used for stream and batch processing of data. 5) We create separate container for Spark stream processing of messages from kafka topic. It essentially formats messages and writes it to our database into the raw_transactions table 6) We have separate container for batch processing, it aggregates data according to given requirments and writes it to aggregated_transactions
-7) We also run a microservice for REST API that access data in our database and returns it via GET requests
+
+Our system consists of several containerized components, all orchestrated using a single Docker Compose setup. The components are as follows:
+
+1. **Kafka**: We chose Kafka as our message queue due to our familiarity with it and its ease of setup and debugging. We created a topic called `crypto_data` and a Producer that writes data from a WebSocket to this topic.
+2. **WebSocket Microservice**: This microservice continuously streams data to our Kafka topic `crypto_data`.
+3. **MongoDB**: We use MongoDB as our database to store the processed data.
+4. **Spark**: Spark is utilized for both stream and batch processing of data.
+5. **Spark Stream Processing**: This container processes messages from the Kafka topic. It formats the messages and writes them to the `raw_transactions` collection in MongoDB.
+6. **Spark Batch Processing**: This container aggregates data according to specified requirements and writes the results to the `aggregated_transactions` collection in MongoDB.
+7. **REST API Microservice**: This microservice provides REST API endpoints to access the data in our database and return it via GET requests.
+
+Each component is designed to work together seamlessly, ensuring efficient data processing and retrieval.
+
+The table structure can be observed from diagram
+
+## Diagram of the architecture
+![alt text](img/bigDataProjectArchitecture.drawio.png)
 
 ## Configuration
 
