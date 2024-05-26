@@ -4,6 +4,6 @@ WORKDIR /app
 
 COPY check_db.py .
 
-RUN pip install pymongo
+RUN pip install cassandra-driver
 
 CMD ["python", "check_db.py"]

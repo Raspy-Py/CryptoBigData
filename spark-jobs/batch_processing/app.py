@@ -1,29 +1,29 @@
 import time
 from datetime import datetime, timedelta, timezone
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, count, sum as _sum
+from pyspark.sql.functions import col, count, sum as _sum, date_format
 
 def run_batch_job():
     spark = SparkSession.builder \
         .appName("CryptoBatchProcessor") \
-        .config("spark.mongodb.input.uri", "mongodb://mongodb:27017/crypto_db.raw_transactions") \
-        .config("spark.mongodb.output.uri", "mongodb://mongodb:27017/crypto_db.aggregated_transactions") \
+        .config("spark.cassandra.connection.host", "cassandra") \
+        .config("spark.cassandra.connection.port", "9042") \
         .getOrCreate()
 
     print("Starting the batch job...")
 
-    mongo_uri = "mongodb://mongodb:27017/crypto_db.raw_transactions"
-    db_name = "crypto_db"
-    collection_name = "aggregated_transactions"
+    keyspace = "crypto_space"
+    raw_table = "raw_transactions"
+    aggregated_table = "aggregated_transactions"
 
-    end_time = datetime.now(timezone.utc)
+    end_time = datetime.now(timezone.utc)#.replace(minute=0, second=0, microsecond=0)
     start_time = end_time - timedelta(hours=1)
 
-    print(f"Reading data from MongoDB between {start_time} and {end_time}.")
+    print(f"Reading data from Cassandra between {start_time} and {end_time}.")
 
     df = spark.read \
-        .format("mongo") \
-        .option("uri", mongo_uri) \
+        .format("org.apache.spark.sql.cassandra") \
+        .options(table=raw_table, keyspace=keyspace) \
         .load() \
         .filter((col("timestamp") >= start_time.isoformat()) & (col("timestamp") < end_time.isoformat()))
 
@@ -35,20 +35,19 @@ def run_batch_job():
 
     print("Aggregating data...")
 
-    aggregated_df = df.groupBy(
-        col("symbol"),
-        col("timestamp").substr(0, 13).alias("hour")  # Group by symbol and hour
-    ).agg(
-        count("*").alias("num_transactions"),
-        _sum("size").alias("total_volume")
-    )
+    aggregated_df = df.withColumn("hour", date_format(col("timestamp"), "yyyy-MM-dd'T'HH")) \
+                      .groupBy("symbol", "hour") \
+                      .agg(
+                          count("*").alias("num_transactions"),
+                          _sum("size").alias("total_volume")
+                      )
 
-    print("Writing aggregated data to MongoDB...")
+    print("Writing aggregated data to Cassandra...")
 
     aggregated_df.write \
-        .format("mongo") \
+        .format("org.apache.spark.sql.cassandra") \
         .mode("append") \
-        .option("uri", f"mongodb://mongodb:27017/{db_name}.{collection_name}") \
+        .options(table=aggregated_table, keyspace=keyspace) \
         .save()
 
     print("Batch job completed.")
@@ -59,5 +58,5 @@ if __name__ == "__main__":
         next_hour = (current_time.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1))
         sleep_time = (next_hour - current_time).total_seconds() + 1  # just to be sure
         print(f"Sleeping for {sleep_time} seconds until the next hour.")
-        time.sleep(10)
+        time.sleep(5)
         run_batch_job()

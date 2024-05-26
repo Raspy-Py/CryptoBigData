@@ -1,1 +1,0 @@
-docker run --rm -it --network crypto-net --name spark-batch-job -v ./spark/batch_processing:/opt/app bitnami/spark:3 /bin/bash

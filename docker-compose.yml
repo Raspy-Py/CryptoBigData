@@ -1,44 +1,23 @@
 version: '3.8'
 services:
   zookeeper:
-    image: wurstmeister/zookeeper
+    image: bitnami/zookeeper:latest
     container_name: zookeeper
-    ports:
-      - "2181:2181"
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
     networks:
       - crypto-net
 
   kafka:
-    image: wurstmeister/kafka
+    image: bitnami/kafka:latest
     container_name: kafka
-    ports:
-      - "9092:9092"
     environment:
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
     networks:
       - crypto-net
-
-  mongodb:
-    image: mongo
-    container_name: mongodb
-    ports:
-      - "27017:27017"
-    networks:
-      - crypto-net
-  
-  cassandradb:
-    image: cassandra:latest
-    container_name: cassandradb
-    ports:
-      - "9042:9042"
-    networks:
-      - crypto-net
-    volumes:
-      - ./cassandra-scripts:/scripts
-    environment:
-      - CASSANDRA_START_RPC=true
+    depends_on:
+      - zookeeper
 
   websocket-client:
     build:
@@ -47,28 +26,108 @@ services:
     networks:
       - crypto-net
 
-  spark-stream-job:
-    build:
-      context: ./spark
-    container_name: spark-stream-job
+  spark-master:
+    image: bitnami/spark:3
+    container_name: spark-master
     environment:
-      SPARK_JOB: stream_processing
-      SPARK_CASSANDRA_PACKAGE: "com.datastax.spark:spark-cassandra-connector_2.12:3.1.0"
-      SPARK_KAFKA_PACKAGE: "org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.0"
+      - SPARK_MODE=master
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    ports:
+      - "8080:8080"
     networks:
       - crypto-net
     depends_on:
-      - cassandradb
+      - kafka
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
-  # spark-batch-job:
-  #   build:
-  #     context: ./spark
-  #   container_name: spark-batch-job
-  #   environment:
-  #     SPARK_JOB: batch_processing
-  #     SPARK_MONGO_PACKAGE: "org.mongodb.spark:mongo-spark-connector_2.12:3.0.1"
-  #   networks:
-  #     - crypto-net
+  spark-worker:
+    image: bitnami/spark:3
+    container_name: spark-worker
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_MEMORY=4G
+      - SPARK_WORKER_CORES=2
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    networks:
+      - crypto-net
+    depends_on:
+      spark-master:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+
+  spark-stream-job:
+    build:
+      ./spark-jobs/stream_processing
+    container_name: spark-stream-job
+    depends_on:
+      spark-master:
+        condition: service_healthy
+      spark-worker:
+        condition: service_started
+      kafka:
+        condition: service_started
+    networks:
+      - crypto-net
+
+  spark-batch-job:
+    build:
+       ./spark-jobs/batch_processing
+    container_name: spark-batch-job
+    depends_on:
+      spark-master:
+        condition: service_healthy
+      spark-worker:
+        condition: service_started
+    networks:
+      - crypto-net
+
+  
+
+  cassandra:
+    image: cassandra:3.11.2
+    container_name: cassandra
+    ports:
+      - "9042:9042"
+    environment:
+      - "MAX_HEAP_SIZE=256M"
+      - "HEAP_NEWSIZE=128M"
+    restart: always
+    volumes:
+      - ./out/cassandra_data:/var/lib/cassandra
+    networks:
+      - crypto-net
+    healthcheck:
+      test: ["CMD", "cqlsh", "-u cassandra", "-p cassandra", "-e", "describe keyspaces"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+
+  cassandra-load-keyspace:
+    container_name: cassandra-load-keyspace
+    image: cassandra:3.11.2
+    depends_on:
+      cassandra:
+        condition: service_healthy
+    volumes:
+      - ./cassandra/init.cql:/schema.cql
+    command: /bin/bash -c "echo loading cassandra keyspace && cqlsh cassandra -u cassandra -p cassandra -f /schema.cql"
+    networks:
+      - crypto-net
 
   fastapi-app:
     build:
@@ -76,6 +135,9 @@ services:
     container_name: fastapi-app
     ports:
       - "8000:8000"
+    depends_on:
+      cassandra:
+        condition: service_healthy
     networks:
       - crypto-net
 

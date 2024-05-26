@@ -16,8 +16,11 @@ retry_interval = 5  # in seconds
 
 def on_message(ws, message):
     data = json.loads(message)
-    kafka_producer.produce('crypto_data', value=json.dumps(data))
-    kafka_producer.flush()
+    if 'data' in data:
+        data_data = data['data']
+        for data_item in data_data:
+            kafka_producer.produce('crypto_data', value=json.dumps(data_item))
+            kafka_producer.flush()
 
 def on_error(ws, error):
     print(error)
