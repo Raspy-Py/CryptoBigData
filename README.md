@@ -1,9 +1,7 @@
 # `PLS, GIVE US 13.72 points... 🙏🥹🥲🙏`
- We spent an enourmous amount of human-hours trying to fire up Cassandra to work with Spark and failed, coming back to MongoDB..
+We've spent an enourmous amount of human-hours trying to fire up Cassandra to work with Spark and failed, coming back to MongoDB..
 
 # Docs
-
-Here's an improved version of the markdown:
 
 ## Design
 
