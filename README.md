@@ -1,4 +1,4 @@
-# `PLS, GIVE US 13.72 point... 🙏🥹🥲🙏`
+# `PLS, GIVE US 13.72 points... 🙏🥹🥲🙏`
  We spent an enourmous amount of human-hours trying to fire up Cassandra to work with Spark and failed, coming back to MongoDB..
 
 # Docs
@@ -23,6 +23,16 @@ The table structure can be observed from diagram
 
 ## Diagram of the architecture
 ![alt text](img/bigDataProjectArchitecture.drawio.png)
+
+## Results
+
+Category B enpoints:
+1. Return the number of trades processed in a specific cryptocurrency in the last N minutes, excluding the last minute. 
+![alt text](img/numberOfTradesPerSymbolInMin.png)
+1. Return the top N cryptocurrencies with the highest trading volume in the last hour.
+![alt text](img/topCrypto.png)
+1. Return the cryptocurrency’s current price for «Buy» and «Sell» sides based on its symbol. 
+![alt text](img/buySell.png)
 
 ## Configuration
 
